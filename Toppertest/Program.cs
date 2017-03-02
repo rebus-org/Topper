@@ -1,5 +1,4 @@
-﻿using System;
-using Serilog;
+﻿using Serilog;
 using Topper;
 
 namespace Toppertest
@@ -10,7 +9,6 @@ namespace Toppertest
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.ColoredConsole()
-                .MinimumLevel.Verbose()
                 .CreateLogger();
 
             var configuration = new ServiceConfiguration()
@@ -18,20 +16,6 @@ namespace Toppertest
                 .Add("test2", () => new TestService2());
 
             ServiceHost.Run(configuration);
-        }
-    }
-
-    class TestService2 : IDisposable
-    {
-        public void Dispose()
-        {
-        }
-    }
-
-    class TestService1 : IDisposable
-    {
-        public void Dispose()
-        {
         }
     }
 }
