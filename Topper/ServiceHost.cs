@@ -1,4 +1,5 @@
 ﻿using System;
+using Serilog;
 using Topper.Internals;
 using Topshelf;
 
@@ -16,14 +17,34 @@ namespace Topper
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            HostFactory.Run(f =>
+            HostFactory.Run(factory =>
             {
-                f.UseSerilog();
-                f.Service<TopperService>(c =>
+                factory.UseSerilog();
+
+                factory.OnException(exception =>
                 {
-                    c.WhenStarted(s => s.Start());
-                    c.WhenStopped(s => s.Stop());
-                    c.ConstructUsing(() => new TopperService(configuration));
+                    Log.Error(exception, "Unhandled exception");
+                });
+
+                factory.Service<TopperService>(config =>
+                {
+                    config.WhenStarted((service, control) =>
+                    {
+                        service.StartupFailed += exception =>
+                        {
+                            Log.Error(exception, "Startup failed");
+                            control.Stop();
+                        };
+
+                        service.Start();
+
+                        return true;
+                    });
+                    config.WhenStopped(service =>
+                    {
+                        service.Stop();
+                    });
+                    config.ConstructUsing(() => new TopperService(configuration));
                 });
             });
         }

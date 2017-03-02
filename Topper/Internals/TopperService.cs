@@ -16,9 +16,21 @@ namespace Topper.Internals
             _configuration = configuration;
         }
 
+        public event Action<Exception> StartupFailed;
+
         public void Start()
         {
-            Task.Run(async () => await StartServices());
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await StartServices();
+                }
+                catch (Exception exception)
+                {
+                    StartupFailed?.Invoke(exception);
+                }
+            });
         }
 
         public void Stop()
@@ -41,11 +53,18 @@ namespace Topper.Internals
 
             foreach (var service in functions)
             {
-                _logger.Debug("Starting service {ServiceName}", service.Name);
+                try
+                {
+                    _logger.Debug("Starting service {ServiceName}", service.Name);
 
-                await service.Initialize();
+                    await service.Initialize();
 
-                _services.Push(service);
+                    _services.Push(service);
+                }
+                catch (Exception exception)
+                {
+                    throw new ApplicationException($"Could not start service '{service.Name}'", exception);
+                }
             }
         }
     }

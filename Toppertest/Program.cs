@@ -9,6 +9,7 @@ namespace Toppertest
         {
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.ColoredConsole()
+                .MinimumLevel.Verbose()
                 .CreateLogger();
 
             var configuration = new ServiceConfiguration()

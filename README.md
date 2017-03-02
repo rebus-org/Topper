@@ -79,7 +79,10 @@ and configure the global :earth_africa: logger before starting your service:
         }
     }
 
+
 And that is how you use Topper.
+
+
 ---
 
 
