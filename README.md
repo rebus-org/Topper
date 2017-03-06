@@ -6,8 +6,6 @@ Generic Windows service host.
 
 Based on Topshelf. Exposes a drastically simplified API based on `IDisposable`.
 
-Also, it is assumed that you want to use Serilog for logging.
-
 ## Getting started
 
 Create `YourNewAwesomeWindowsService` as a Console Application project targeting at least .NET 4.5.2.
@@ -55,7 +53,7 @@ in `Main`, which could look like this:
 
 :monkey_face: Easy!
 
-Topper uses Serilog :zap: to log things, so you probably want to
+Topper uses LibLog :zap: to log things.  If you want to use Serilog, you probably want to
 
     Install-Package Serilog.Sinks.ColoredConsole -ProjectName YourNewAwesomeWindowsService
 

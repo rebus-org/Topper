@@ -1,7 +1,8 @@
 ﻿using System;
-using Serilog;
 using Topper.Internals;
+using Topper.Logging;
 using Topshelf;
+using Topshelf.LibLog;
 
 namespace Topper
 {
@@ -10,6 +11,8 @@ namespace Topper
     /// </summary>
     public static class ServiceHost
     {
+        static readonly ILog Log = LogProvider.GetCurrentClassLogger();
+
         /// <summary>
         /// Starts the service host with the given <see cref="ServiceConfiguration"/>
         /// </summary>
@@ -19,11 +22,11 @@ namespace Topper
 
             HostFactory.Run(factory =>
             {
-                factory.UseSerilog();
+                factory.UseLibLog();
 
                 factory.OnException(exception =>
                 {
-                    Log.Error(exception, "Unhandled exception");
+                    Log.ErrorException("Unhandled exception", exception);
                 });
 
                 factory.Service<TopperService>(config =>
@@ -32,7 +35,7 @@ namespace Topper
                     {
                         service.StartupFailed += exception =>
                         {
-                            Log.Error(exception, "Startup failed");
+                            Log.ErrorException("Startup failed", exception);
                             control.Stop();
                         };
 

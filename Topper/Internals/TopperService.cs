@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Serilog;
+using Topper.Logging;
 
 namespace Topper.Internals
 {
     class TopperService
     {
         readonly ConcurrentStack<Service> _services = new ConcurrentStack<Service>();
-        readonly ILogger _logger = Log.ForContext<TopperService>();
+        readonly ILog _logger = LogProvider.GetCurrentClassLogger();
         readonly ServiceConfiguration _configuration;
 
         public TopperService(ServiceConfiguration configuration)
@@ -39,7 +39,7 @@ namespace Topper.Internals
 
             while (_services.TryPop(out service))
             {
-                _logger.Debug("Stopping service {ServiceName}", service.Name);
+                _logger.Debug($"Stopping service {service.Name}");
 
                 service.Dispose();
             }
@@ -47,7 +47,7 @@ namespace Topper.Internals
 
         async Task StartServices()
         {
-            _logger.Information("Starting Topper service");
+            _logger.Info("Starting Topper service");
 
             var functions = _configuration.GetFunctions();
 
@@ -55,7 +55,7 @@ namespace Topper.Internals
             {
                 try
                 {
-                    _logger.Debug("Starting service {ServiceName}", service.Name);
+                    _logger.Debug($"Starting service {service.Name}");
 
                     await service.Initialize();
 
