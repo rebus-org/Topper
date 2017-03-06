@@ -6,7 +6,6 @@ namespace Toppertest
     {
         public TestService2()
         {
-            throw new InvalidOperationException();
         }
         public void Dispose()
         {
