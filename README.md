@@ -2,9 +2,13 @@
 
 [![install from nuget](https://img.shields.io/nuget/v/Topper.svg?style=flat-square)](https://www.nuget.org/packages/Topper)
 
-Generic Windows service host.
+Generic Windows service host - makes an ordinary Console Application hostable in the following scenarios:
 
-Based on Topshelf. Exposes a drastically simplified API based on `IDisposable`.
+* To be F5-debugged locally - on your developer machine
+* To be installed as a Windows Server - on the servers in your basement
+* To be executed as an Azure Web Job - in the cloud!!
+
+Based on Topshelf. Exposes a drastically simplified API, where "services" are simply factories that return something `IDisposable`.
 
 ## Getting started
 
@@ -80,6 +84,35 @@ and configure the global :earth_africa: logger before starting your service:
 
 And that is how you use Topper.
 
+## How to run locally?
+
+Press F5 or CTRL+F5 in Visual Studio.
+
+Run the .exe
+
+## How to run as Windows Service?
+
+Open an elevated command prompt, and run the .exe with the `install` argument, like so:
+
+```dos
+C:\apps\YourApp> YourApp.exe install
+```
+
+and then some Windows Service Controll stuff will appear and tell you some details on how it was installed.
+
+You can remove it again like this:
+
+```dos
+C:\apps\YourApp> YourApp.exe uninstall
+```
+
+Not exactly surprising. :clap:
+
+## How to run as Azure Web Job?
+
+Just run it as you would any other Console Application as a Continuous Web Job.
+
+Topper automatically monitors for the presence of the `WEBJOBS_SHUTDOWN_FILE`´, to be able to shut down gracefully and dispose your `IDisposable`s. :recycle:
 
 ---
 

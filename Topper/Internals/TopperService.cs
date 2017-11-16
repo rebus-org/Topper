@@ -35,9 +35,7 @@ namespace Topper.Internals
 
         public void Stop()
         {
-            Service service;
-
-            while (_services.TryPop(out service))
+            while (_services.TryPop(out var service))
             {
                 _logger.Debug($"Stopping service {service.Name}");
 

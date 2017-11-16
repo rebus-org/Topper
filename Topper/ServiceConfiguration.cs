@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Topper.Internals;
-
 #pragma warning disable 1998
 
 namespace Topper
@@ -34,9 +33,6 @@ namespace Topper
             return this;
         }
 
-        internal IEnumerable<Service> GetFunctions()
-        {
-            return _serviceFunctions;
-        }
+        internal IEnumerable<Service> GetFunctions() => _serviceFunctions;
     }
 }

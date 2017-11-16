@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Threading;
 using Topper.Internals;
 using Topper.Logging;
 using Topshelf;
 using Topshelf.LibLog;
+using Timer = System.Timers.Timer;
 
 namespace Topper
 {
@@ -11,7 +15,8 @@ namespace Topper
     /// </summary>
     public static class ServiceHost
     {
-        static readonly ILog Log = LogProvider.GetCurrentClassLogger();
+        static readonly ILog Log = LogProvider.GetLogger(typeof(ServiceHost));
+        static readonly ConcurrentStack<IDisposable> Disposables = new ConcurrentStack<IDisposable>();
 
         /// <summary>
         /// Starts the service host with the given <see cref="ServiceConfiguration"/>
@@ -38,18 +43,48 @@ namespace Topper
                             Log.ErrorException("Startup failed", exception);
                             control.Stop();
                         };
-
                         service.Start();
-
                         return true;
                     });
-                    config.WhenStopped(service =>
-                    {
-                        service.Stop();
-                    });
+                    config.WhenStopped(service => service.Stop());
                     config.ConstructUsing(() => new TopperService(configuration));
+                    config.AfterStartingService(DetectShutdownInAzureWebJobs);
                 });
             });
+        }
+
+        static void DetectShutdownInAzureWebJobs(HostStartedContext context)
+        {
+            var filePath = Environment.GetEnvironmentVariable("WEBJOBS_SHUTDOWN_FILE");
+
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                // not an Azure Web Job
+                return;
+            }
+
+            Log.Info($"Will monitor for Azure Web Job shutdown file at {filePath}");
+
+            var timer = Using(new Timer(200));
+            timer.Elapsed += (o, ea) =>
+            {
+                try
+                {
+                    if (File.Exists(filePath))
+                    {
+                        Log.Info($"Detected Azure Web Job file {filePath} - shutting down");
+                        context.Stop();
+                    }
+                }
+                catch { }
+            };
+            timer.Start();
+        }
+
+        static TDisposable Using<TDisposable>(TDisposable disposable) where TDisposable : IDisposable
+        {
+            Disposables.Push(disposable);
+            return disposable;
         }
     }
 }
