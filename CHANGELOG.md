@@ -16,4 +16,9 @@
 
 * Make it Azure Web Job-hostable
 
+## 2.1.1
+
+* Fix it so that it works as Azure Web Job
+
+
 [scardetto]: https://github.com/scardetto

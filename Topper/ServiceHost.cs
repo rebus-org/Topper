@@ -25,15 +25,65 @@ namespace Topper
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
+            if (IsAzureWebJob)
+            {
+                RunAsAzureWebJob(configuration);
+                return;
+            }
+
+            RunAsTopShelf(configuration);
+        }
+
+        static void RunAsAzureWebJob(ServiceConfiguration configuration)
+        {
+            try
+            {
+                var topperService = new TopperService(configuration);
+                var keepRunning = true;
+
+                topperService.StartupFailed += exception =>
+                {
+                    Log.ErrorException("Startup failed", exception);
+                    Volatile.Write(ref keepRunning, false);
+                };
+
+                DetectShutdownInAzureWebJobs(() =>
+                {
+                    Volatile.Write(ref keepRunning, false);
+                });
+
+                try
+                {
+                    Log.Info("Starting topper service(s)");
+                    topperService.Start();
+
+                    Log.Info("Running...");
+
+                    while (Volatile.Read(ref keepRunning))
+                    {
+                        Thread.Sleep(100);
+                    }
+
+                    Log.Info("Exiting...");
+                }
+                finally
+                {
+                    Log.Info("Stopping topper service(s)");
+                    topperService.Stop();
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.ErrorException("Unhandled exception in", exception);
+            }
+        }
+
+        static void RunAsTopShelf(ServiceConfiguration configuration)
+        {
             HostFactory.Run(factory =>
             {
                 factory.UseLibLog();
-
-                factory.OnException(exception =>
-                {
-                    Log.ErrorException("Unhandled exception", exception);
-                });
-
+                factory.OnException(exception => { Log.ErrorException("Unhandled exception", exception); });
                 factory.Service<TopperService>(config =>
                 {
                     config.WhenStarted((service, control) =>
@@ -48,12 +98,13 @@ namespace Topper
                     });
                     config.WhenStopped(service => service.Stop());
                     config.ConstructUsing(() => new TopperService(configuration));
-                    config.AfterStartingService(DetectShutdownInAzureWebJobs);
                 });
             });
         }
 
-        static void DetectShutdownInAzureWebJobs(HostStartedContext context)
+        static bool IsAzureWebJob => !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("WEBJOBS_SHUTDOWN_FILE"));
+
+        static void DetectShutdownInAzureWebJobs(Action stopAction)
         {
             var filePath = Environment.GetEnvironmentVariable("WEBJOBS_SHUTDOWN_FILE");
 
@@ -73,7 +124,7 @@ namespace Topper
                     if (File.Exists(filePath))
                     {
                         Log.Info($"Detected Azure Web Job file {filePath} - shutting down");
-                        context.Stop();
+                        stopAction();
                     }
                 }
                 catch { }
