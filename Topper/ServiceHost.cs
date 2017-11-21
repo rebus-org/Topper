@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using Topper.Internals;
 using Topper.Logging;
@@ -80,8 +81,11 @@ namespace Topper
 
         static void RunAsTopShelf(ServiceConfiguration configuration)
         {
+            var name = Assembly.GetEntryAssembly().GetName().Name;
+
             HostFactory.Run(factory =>
             {
+                factory.SetServiceName(name);
                 factory.UseLibLog();
                 factory.OnException(exception => { Log.ErrorException("Unhandled exception", exception); });
                 factory.Service<TopperService>(config =>

@@ -20,5 +20,9 @@
 
 * Fix it so that it works as Azure Web Job
 
+## 2.1.2
+
+* Fix service name when calling Topshelf
+
 
 [scardetto]: https://github.com/scardetto
