@@ -112,7 +112,7 @@ Not exactly surprising. :clap:
 
 Just run it as you would any other Console Application as a Continuous Web Job.
 
-Topper automatically monitors for the presence of the `WEBJOBS_SHUTDOWN_FILE`´, to be able to shut down gracefully and dispose your `IDisposable`s. :recycle:
+Topper automatically monitors for the presence of the `WEBJOBS_SHUTDOWN_FILE`, to be able to shut down gracefully and dispose your `IDisposable`s. :recycle:
 
 ---
 
