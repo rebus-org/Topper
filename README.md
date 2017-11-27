@@ -98,7 +98,7 @@ Open an elevated command prompt, and run the .exe with the `install` argument, l
 C:\apps\YourApp> YourApp.exe install
 ```
 
-and then some Windows Service Controll stuff will appear and tell you some details on how it was installed.
+and then some Windows Service Control :traffic_light: stuff will appear and tell you some details on how it was installed.
 
 You can remove it again like this:
 
