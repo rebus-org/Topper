@@ -24,5 +24,9 @@
 
 * Fix service name when calling Topshelf
 
+## 2.1.3
+
+* Don't spam the logs with shutdown notifications
+
 
 [scardetto]: https://github.com/scardetto

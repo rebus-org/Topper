@@ -120,15 +120,18 @@ namespace Topper
 
             Log.Info($"Will monitor for Azure Web Job shutdown file at {filePath}");
 
+            var didAlreadySignalShutDown = false;
+
             var timer = Using(new Timer(200));
             timer.Elapsed += (o, ea) =>
             {
                 try
                 {
-                    if (File.Exists(filePath))
+                    if (File.Exists(filePath) && !didAlreadySignalShutDown)
                     {
                         Log.Info($"Detected Azure Web Job file {filePath} - shutting down");
                         stopAction();
+                        didAlreadySignalShutDown = true;
                     }
                 }
                 catch { }
