@@ -5,7 +5,7 @@
 Generic Windows service host - makes an ordinary Console Application hostable in the following scenarios:
 
 * To be F5-debugged locally - on your developer machine
-* To be installed as a Windows Server - on the servers in your basement
+* To be installed as a Windows Service - on the servers in your basement
 * To be executed as an Azure Web Job - in the cloud!!
 
 Based on Topshelf. Exposes a drastically simplified API, where "services" are simply factories that return something `IDisposable`.
