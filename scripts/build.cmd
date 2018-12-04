@@ -14,13 +14,9 @@ if "%version%"=="" (
   goto exit_fail
 )
 
-set msbuild=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBuild.exe
-
-if not exist "%msbuild%" (
-  echo Could not find MSBuild here:
-  echo.
-  echo   "%msbuild%"
-  echo.
+where msbuild.exe
+if "%errorlevel%"=="1" (
+  echo MSBuild does not seem to be in the current PATH
   goto exit_fail
 )
 
@@ -53,7 +49,7 @@ if exist "%destination%" (
 mkdir "%destination%"
 if %ERRORLEVEL% neq 0 goto exit_fail
 
-"%msbuild%" "%sln%" /p:Configuration=Release /t:rebuild
+msbuild.exe "%sln%" /p:Configuration=Release /t:rebuild
 if %ERRORLEVEL% neq 0 goto exit_fail
 
 "%nuget%" pack "%name%\%name%.nuspec" -OutputDirectory "%destination%" -Version %version%
