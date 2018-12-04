@@ -122,7 +122,8 @@ namespace Topper
 
             var didAlreadySignalShutDown = false;
 
-            var timer = Using(new Timer(200));
+            var timer = Using(new Timer(300));
+
             timer.Elapsed += (o, ea) =>
             {
                 try
@@ -130,8 +131,19 @@ namespace Topper
                     if (File.Exists(filePath) && !didAlreadySignalShutDown)
                     {
                         Log.Info($"Detected Azure Web Job file {filePath} - shutting down");
-                        stopAction();
-                        didAlreadySignalShutDown = true;
+
+                        try
+                        {
+                            stopAction();
+                        }
+                        catch (Exception exception)
+                        {
+                            Log.ErrorException("An error occurred when invoking shutdown callback", exception);
+                        }
+                        finally
+                        {
+                            didAlreadySignalShutDown = true;
+                        }
                     }
                 }
                 catch { }

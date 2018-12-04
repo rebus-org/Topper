@@ -28,5 +28,8 @@
 
 * Don't spam the logs with shutdown notifications
 
+## 2.1.4
+
+* Make Azure Web Job shutdown logic log it if something goes wrong
 
 [scardetto]: https://github.com/scardetto
