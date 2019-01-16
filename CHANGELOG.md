@@ -32,4 +32,8 @@
 
 * Make Azure Web Job shutdown logic log it if something goes wrong
 
+## 3.0.0-a1
+
+* Target .NET Standard 2.0
+
 [scardetto]: https://github.com/scardetto

@@ -6,7 +6,6 @@ using System.Threading;
 using Topper.Internals;
 using Topper.Logging;
 using Topshelf;
-using Topshelf.LibLog;
 using Timer = System.Timers.Timer;
 
 namespace Topper
