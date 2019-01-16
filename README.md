@@ -10,9 +10,11 @@ Generic Windows service host - makes an ordinary Console Application hostable in
 
 Based on Topshelf. Exposes a drastically simplified API, where "services" are simply factories that return something `IDisposable`.
 
+Targets .NET Standard 2.0, so you must target either netcoreapp2.0 (or later), or net462 (or later) in your Console Application.
+
 ## Getting started
 
-Create `YourNewAwesomeWindowsService` as a Console Application project targeting at least .NET 4.5.2.
+Create `YourNewAwesomeWindowsService` as a Console Application project targeting AT LEAST .NET 4.6.2 or .NET Core App 2.0.
 
 Include the NuGet package :package: 
 
@@ -20,66 +22,75 @@ Include the NuGet package :package:
 
 and clean up your `Program.cs` so it becomes nice like this: :sunflower: 
 
-    namespace YourNewAwesomeWindowsService
+```csharp
+namespace YourNewAwesomeWindowsService
+{
+    class Program
     {
-        class Program
+        static void Main()
         {
-            static void Main()
-            {
                 
-            }
         }
     }
-
+}
+```
 and then you configure Topper by going
 
-	var configuration = new ServiceConfiguration()
-		.Add(.. function that returns an IDisposable ..)
-		.Add(.. another function that returns an IDisposable ..);
+```csharp
+var configuration = new ServiceConfiguration()
+	.Add(.. function that returns an IDisposable ..)
+	.Add(.. another function that returns an IDisposable ..);
 
-	ServiceHost.Run(configuration);
+ServiceHost.Run(configuration);
+```
 
 in `Main`, which could look like this:
 
-    namespace YourNewAwesomeWindowsService
+```csharp
+namespace YourNewAwesomeWindowsService
+{
+    class Program
     {
-        class Program
+        static void Main()
         {
-            static void Main()
-            {
-                var configuration = new ServiceConfiguration()
-                    .Add(() => new MyNewAwesomeService());
+            var configuration = new ServiceConfiguration()
+                .Add(() => new MyNewAwesomeService());
 
-                ServiceHost.Run(configuration);                
-            }
+            ServiceHost.Run(configuration);                
         }
     }
+}
+```
 
 :monkey_face: Easy!
 
 Topper uses LibLog :zap: to log things.  If you want to use Serilog, you probably want to
 
-    Install-Package Serilog.Sinks.ColoredConsole -ProjectName YourNewAwesomeWindowsService
+```psh
+Install-Package Serilog.Sinks.ColoredConsole -ProjectName YourNewAwesomeWindowsService
+```
 
 and configure the global :earth_africa: logger before starting your service:
 
-    namespace YourNewAwesomeWindowsService
+```csharp
+namespace YourNewAwesomeWindowsService
+{
+    class Program
     {
-        class Program
+        static void Main()
         {
-            static void Main()
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .WriteTo.ColoredConsole()
-                    .CreateLogger();
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.ColoredConsole()
+                .CreateLogger();
 
-                var configuration = new ServiceConfiguration()
-                    .Add(() => new MyNewAwesomeService());
+            var configuration = new ServiceConfiguration()
+                .Add(() => new MyNewAwesomeService());
 
-                ServiceHost.Run(configuration);                
-            }
+            ServiceHost.Run(configuration);                
         }
     }
+}
+```
 
 
 And that is how you use Topper.
