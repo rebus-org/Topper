@@ -23,9 +23,16 @@
         </member>
         <member name="T:Topper.ServiceConfiguration">
             <summary>
-            Create an instance of this one and add services to it by calling <see cref="M:Topper.ServiceConfiguration.Add(System.String,System.Func{System.IDisposable})"/>
-            or <see cref="M:Topper.ServiceConfiguration.Add(System.String,System.Func{System.Threading.Tasks.Task{System.IDisposable}})"/>. When you have added enough
-            services to it, call <see cref="M:Topper.ServiceHost.Run(Topper.ServiceConfiguration)"/>
+            Create an instance of this one and add services to it by calling <see cref="M:Topper.ServiceConfiguration.Add(System.String,System.Func{System.IDisposable})"/>,
+            <see cref="M:Topper.ServiceConfiguration.Add(System.String,System.Func{System.Threading.Tasks.Task{System.IDisposable}})"/>, or
+            <see cref="M:Topper.ServiceConfiguration.Add(System.String,System.Func{System.Threading.CancellationToken,System.Threading.Tasks.Task{System.IDisposable}})"/>.
+            When you have added enough services to it, call <see cref="M:Topper.ServiceHost.Run(Topper.ServiceConfiguration)"/> with the configuration
+            </summary>
+        </member>
+        <member name="M:Topper.ServiceConfiguration.#ctor">
+            <summary>
+            Creates the service configuration object. Start out by calling this, then add services to it, then call
+            <see cref="M:Topper.ServiceHost.Run(Topper.ServiceConfiguration)"/> with it.
             </summary>
         </member>
         <member name="M:Topper.ServiceConfiguration.Configure(System.Action{Topper.HostSettings})">
