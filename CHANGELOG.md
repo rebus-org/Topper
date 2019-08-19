@@ -36,7 +36,7 @@
 
 * Target .NET Standard 2.0
 
-## 3.1.0-b2
+## 3.1.0
 
 * Add ability to parallelize initialization/disposal of services
 * Service add function now exists in overload that passes a `CancellationToken` to the asynchronous initialization function
