@@ -4,19 +4,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Topper.Internals;
 // ReSharper disable UnusedMember.Global
+// ReSharper disable EmptyConstructor
 #pragma warning disable 1998
 
 namespace Topper
 {
     /// <summary>
-    /// Create an instance of this one and add services to it by calling <see cref="Add(string,System.Func{System.IDisposable})"/>
-    /// or <see cref="Add(string,System.Func{System.Threading.Tasks.Task{System.IDisposable}})"/>. When you have added enough
-    /// services to it, call <see cref="ServiceHost.Run"/>
+    /// Create an instance of this one and add services to it by calling <see cref="Add(string,System.Func{System.IDisposable})"/>,
+    /// <see cref="Add(string,System.Func{System.Threading.Tasks.Task{System.IDisposable}})"/>, or
+    /// <see cref="Add(string,System.Func{CancellationToken, System.Threading.Tasks.Task{System.IDisposable}})"/>.
+    /// When you have added enough services to it, call <see cref="ServiceHost.Run"/> with the configuration
     /// </summary>
     public class ServiceConfiguration
     {
         readonly List<Service> _serviceFunctions = new List<Service>();
         readonly HostSettings _hostSettings = new HostSettings();
+
+        /// <summary>
+        /// Creates the service configuration object. Start out by calling this, then add services to it, then call
+        /// <see cref="ServiceHost.Run"/> with it.
+        /// </summary>
+        public ServiceConfiguration()
+        {
+        }
 
         /// <summary>
         /// Invokes configuration callback that makes it possible to further customize things
