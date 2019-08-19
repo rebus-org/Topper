@@ -13,6 +13,11 @@ namespace Toppertest
                 .CreateLogger();
 
             var configuration = new ServiceConfiguration()
+                .Configure(c =>
+                {
+                    c.EnableParallelStartup();
+                    c.EnableParallelShutdown();
+                })
                 .Add("test1", () => new TestService1())
                 .Add("test2", () => new TestService2());
 

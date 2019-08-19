@@ -80,7 +80,7 @@ namespace Topper
 
         static void RunAsTopShelf(ServiceConfiguration configuration)
         {
-            var name = Assembly.GetEntryAssembly().GetName().Name;
+            var name = Assembly.GetEntryAssembly()?.GetName().Name ?? "(unknown name)";
 
             HostFactory.Run(factory =>
             {
@@ -127,22 +127,22 @@ namespace Topper
             {
                 try
                 {
-                    if (File.Exists(filePath) && !didAlreadySignalShutDown)
-                    {
-                        Log.Info($"Detected Azure Web Job file {filePath} - shutting down");
+                    if (!File.Exists(filePath)) return;
+                    if (didAlreadySignalShutDown) return;
 
-                        try
-                        {
-                            stopAction();
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.ErrorException("An error occurred when invoking shutdown callback", exception);
-                        }
-                        finally
-                        {
-                            didAlreadySignalShutDown = true;
-                        }
+                    Log.Info($"Detected Azure Web Job file {filePath} - shutting down");
+
+                    try
+                    {
+                        stopAction();
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.ErrorException("An error occurred when invoking shutdown callback", exception);
+                    }
+                    finally
+                    {
+                        didAlreadySignalShutDown = true;
                     }
                 }
                 catch { }

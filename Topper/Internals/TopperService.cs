@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Topper.Logging;
 
@@ -7,6 +9,7 @@ namespace Topper.Internals
 {
     class TopperService
     {
+        readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         readonly ConcurrentStack<Service> _services = new ConcurrentStack<Service>();
         readonly ILog _logger = LogProvider.GetCurrentClassLogger();
         readonly ServiceConfiguration _configuration;
@@ -14,7 +17,11 @@ namespace Topper.Internals
         public TopperService(ServiceConfiguration configuration)
         {
             _configuration = configuration;
+
+            StartupFailed += _ => _cancellationTokenSource.Cancel();
         }
+
+        HostSettings Settings => _configuration.GetSettings();
 
         public event Action<Exception> StartupFailed;
 
@@ -24,7 +31,7 @@ namespace Topper.Internals
             {
                 try
                 {
-                    await StartServices();
+                    await StartServices(_cancellationTokenSource.Token);
                 }
                 catch (Exception exception)
                 {
@@ -33,8 +40,40 @@ namespace Topper.Internals
             });
         }
 
+        async Task StartServices(CancellationToken cancellationToken)
+        {
+            var functions = _configuration.GetFunctions();
+
+            if (Settings.ParallelStartup)
+            {
+                _logger.Info("Starting Topper service (parallel startup activated)");
+                await Task.WhenAll(functions.Select(service => StartService(service, cancellationToken)));
+                return;
+            }
+
+            foreach (var service in functions)
+            {
+                _logger.Info("Starting Topper service");
+                await StartService(service, cancellationToken);
+            }
+        }
+
         public void Stop()
         {
+            if (Settings.ParallelShutdown)
+            {
+                _logger.Info("Stopping Topper service (parallel shutdown activated)");
+                Parallel.ForEach(_services, service =>
+                {
+                    _logger.Debug($"Stopping service {service.Name}");
+
+                    service.Dispose();
+                });
+                return;
+            }
+
+            _logger.Info("Stopping Topper service");
+
             while (_services.TryPop(out var service))
             {
                 _logger.Debug($"Stopping service {service.Name}");
@@ -43,26 +82,23 @@ namespace Topper.Internals
             }
         }
 
-        async Task StartServices()
+        async Task StartService(Service service, CancellationToken cancellationToken)
         {
-            _logger.Info("Starting Topper service");
-
-            var functions = _configuration.GetFunctions();
-
-            foreach (var service in functions)
+            try
             {
-                try
-                {
-                    _logger.Debug($"Starting service {service.Name}");
+                _services.Push(service);
 
-                    await service.Initialize();
+                _logger.Debug($"Starting service {service.Name}");
 
-                    _services.Push(service);
-                }
-                catch (Exception exception)
-                {
-                    throw new ApplicationException($"Could not start service '{service.Name}'", exception);
-                }
+                await service.Initialize(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                _logger.Debug($"Service {service.Name} startup cancelled");
+            }
+            catch (Exception exception)
+            {
+                throw new ApplicationException($"Could not start service '{service.Name}'", exception);
             }
         }
     }
