@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Topper.Internals;
+using Topshelf.HostConfigurators;
 #pragma warning disable 1998
 
 namespace Topper
@@ -13,6 +14,7 @@ namespace Topper
     /// </summary>
     public class ServiceConfiguration
     {
+        Action<HostConfigurator> _hostConfigurator;
         readonly List<Service> _serviceFunctions = new List<Service>();
 
         /// <summary>
@@ -33,6 +35,13 @@ namespace Topper
             return this;
         }
 
+        public ServiceConfiguration ExposeTopShelfConfiguration(Action<HostConfigurator> hostConfigurator)
+        {
+            _hostConfigurator = hostConfigurator;
+            return this;
+        }
+
+        internal Action<HostConfigurator> GetHostConfigurator() => _hostConfigurator;
         internal IEnumerable<Service> GetFunctions() => _serviceFunctions;
     }
 }

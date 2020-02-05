@@ -102,6 +102,8 @@ namespace Topper
                     config.WhenStopped(service => service.Stop());
                     config.ConstructUsing(() => new TopperService(configuration));
                 });
+
+                configuration.GetHostConfigurator()?.Invoke(factory);
             });
         }
 
