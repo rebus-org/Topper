@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using Topper;
+using Topshelf;
 
 namespace Toppertest
 {
@@ -17,6 +18,12 @@ namespace Toppertest
                 {
                     c.EnableParallelStartup();
                     c.EnableParallelShutdown();
+
+                    c.Topshelf(config =>
+                    {
+                        config.SetDescription("Some description");
+                        config.EnableServiceRecovery(r => r.RestartService(5));
+                    });
                 })
                 .Add("test1", () => new TestService1())
                 .Add("test2", () => new TestService2());

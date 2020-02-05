@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Topper.Internals;
+using Topshelf.HostConfigurators;
 // ReSharper disable UnusedMember.Global
 // ReSharper disable EmptyConstructor
 #pragma warning disable 1998
@@ -19,6 +20,7 @@ namespace Topper
     {
         readonly List<Service> _serviceFunctions = new List<Service>();
         readonly HostSettings _hostSettings = new HostSettings();
+
 
         /// <summary>
         /// Creates the service configuration object. Start out by calling this, then add services to it, then call
