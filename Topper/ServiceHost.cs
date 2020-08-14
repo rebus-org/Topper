@@ -94,7 +94,13 @@ namespace Topper
                         service.StartupFailed += exception =>
                         {
                             Log.ErrorException("Startup failed", exception);
-                            control.Stop();
+                            
+                            // bug in Topshelf: it doesn't seem to trigger recovery, when calling this:
+                            //  control.Stop(TopshelfExitCode.AbnormalExit);
+                            // so instead we call this:
+                            Environment.Exit(-1);
+                            // more info here:
+                            // https://github.com/Topshelf/Topshelf/issues/479
                         };
                         service.Start();
                         return true;

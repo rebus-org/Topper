@@ -35,5 +35,8 @@
 ## 3.2.0
 * Provide ability to customize Topshelf's `HostConfigurator`, making it possible e.g. to configure a service's description, crash recovery, etc. - thanks [igitur]
 
+## 3.2.1
+* Work around bug in Topshelf, which would not trigger Windows Service recovery if startup failed
+
 [igitur]: https://github.com/igitur
 [scardetto]: https://github.com/scardetto
